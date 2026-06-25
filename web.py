@@ -93,7 +93,6 @@ void ScanFolder(const std::string& path, bool saveToConfig = true) {
             
             projects.push_back(p);
 
-            // Save the path to config file if requested
             if (saveToConfig) {
                 std::ofstream outfile(CONFIG_FILE);
                 if (outfile.is_open()) {
@@ -106,14 +105,13 @@ void ScanFolder(const std::string& path, bool saveToConfig = true) {
     }
 }
 
-// Automatically loads saved paths on startup configuration checks
 void LoadSavedProjects() {
     std::ifstream infile(CONFIG_FILE);
     if (infile.is_open()) {
         std::string savedPath;
         if (std::getline(infile, savedPath)) {
             if (!savedPath.empty()) {
-                ScanFolder(savedPath, false); // Load it without infinitely re-writing file
+                ScanFolder(savedPath, false);
             }
         }
         infile.close();
@@ -134,14 +132,14 @@ std::string GetWindowsEnvVar(const std::string& varName) {
 int main() {
     if (!glfwInit()) return 1;
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    GLFWwindow* window = glfwCreateWindow(850, 500, "Aether Orchestrator", NULL, NULL);
+    // Title updated to HOST
+    GLFWwindow* window = glfwCreateWindow(850, 500, "HOST", NULL, NULL);
     glfwMakeContextCurrent(window);
     
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    // Load any existing profile information instantly
     LoadSavedProjects();
 
     std::string localAppData = GetWindowsEnvVar("LOCALAPPDATA");
@@ -169,7 +167,8 @@ int main() {
         
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(850, 500));
-        ImGui::Begin("Aether Control Panel", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
+        // Main structural header layout panel named to HOST Control Panel
+        ImGui::Begin("HOST Control Panel", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
         
         if (ImGui::Button("Add Project Folder")) {
             std::string path = OpenFolderDialog();
@@ -184,11 +183,11 @@ int main() {
             
             if (ImGui::Button(proj.isRunning ? "Kill Server" : "Boot Tunnel")) {
                 if (!proj.isRunning) {
-                    std::string serverCmd = "C:\\Windows\\System32\\cmd.exe /c start \"Aether Python Server\" cmd /k \"cd /d " + proj.folderPath + 
+                    std::string serverCmd = "C:\\Windows\\System32\\cmd.exe /c start \"HOST Python Server\" cmd /k \"cd /d " + proj.folderPath + 
                                            " && " + nativePython + " -m pip install flask google-genai & " + nativePython + " " + proj.detectedFile + "\"";
                     std::system(serverCmd.c_str());
                     
-                    std::string tunnelCmd = "C:\\Windows\\System32\\cmd.exe /c start \"Aether Tunnel Connection\" cmd /k npx localtunnel --port " + std::to_string(proj.port) + 
+                    std::string tunnelCmd = "C:\\Windows\\System32\\cmd.exe /c start \"HOST Tunnel Connection\" cmd /k npx localtunnel --port " + std::to_string(proj.port) + 
                                            " --subdomain " + std::string(proj.subdomainInput) + " ^> lt.log 2^>^&1";
                     std::system(tunnelCmd.c_str());
                     
@@ -241,12 +240,13 @@ def compile_and_run():
                str(deps / "imgui_widgets.cpp"), str(deps / "imgui_tables.cpp"),
                str(deps / "backends/imgui_impl_glfw.cpp"), str(deps / "backends/imgui_impl_opengl3.cpp")]
     
-    cmd = f"g++ {' '.join(sources)} {include_flags} -L{ucrt_path}/lib -o Aether.exe -lglfw3 -lopengl32 -lgdi32 -luser32"
+    # Executable output target set to HOST.exe
+    cmd = f"g++ {' '.join(sources)} {include_flags} -L{ucrt_path}/lib -o HOST.exe -lglfw3 -lopengl32 -lgdi32 -luser32"
     
-    print("[*] Building Aether Orchestrator (Auto-Save Persistence Config Mode)...")
+    print("[*] Building HOST Framework Application...")
     if os.system(cmd) == 0:
         print("[+] Success. Executing application container...")
-        os.system("Aether.exe")
+        os.system("HOST.exe")
     else:
         print("[!] Build failed.")
 
