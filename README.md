@@ -15,8 +15,6 @@ Host your websites in a few clicks using local tunnel
    - `pacman -Syu`
    - `pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-glfw`
 3. Run web.py
-4. Wait for it to compile..
-5. And ENJOY
 
 ---
 
