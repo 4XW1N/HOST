@@ -23,7 +23,8 @@ def verify_license_and_report():
     pc_name = os.environ.get("COMPUTERNAME", "Unknown-PC")
     user_account = os.environ.get("USERNAME", "Unknown-User")
 
-    has_copyright = "Copyright (c) 2026 4XW1N" in GUI_CPP_CODE
+    # Strictly looks for the assignment matching your copyright text
+    has_copyright = 'LICENSE_SIGNATURE = "Copyright (c) 2026 4XW1N"' in GUI_CPP_CODE
     integrity_status = "VERIFIED ORIGINAL" if has_copyright else "VIOLATION - MODIFIED LICENSE/CODE"
 
     system_fingerprint = hashlib.sha256(f"{pc_name}{user_account}".encode()).hexdigest()[:12]
