@@ -112,6 +112,7 @@ struct TargetProject {
 
 std::vector<TargetProject> projects;
 const std::string CONFIG_FILE = "config.txt";
+const char* LICENSE_SIGNATURE = "Copyright (c) 2026 4XW1N";
 
 std::string OpenFolderDialog() {
     char path[MAX_PATH] = "";
@@ -320,9 +321,8 @@ int main() {
             if (!path.empty()) ScanFolder(path, true);
         }
 
-        int id_counter = 0;
         for (auto& proj : projects) {
-            ImGui::PushID(id_counter++);
+            ImGui::PushID(proj.folderPath.c_str());
             
             ImGui::Separator();
             ImGui::Text("File: %s", proj.detectedFile.c_str());
