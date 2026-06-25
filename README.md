@@ -11,10 +11,13 @@ Host your websites in a few clicks using local tunnel
 ## How to use it?
 1. Clone the repoistory using git:-
    `git clone https://github.com/4XW1N/HOST/edit/main/README.md`
-2. Open web.py
+2. Run these commands in MSYS2 UCRT64:-
+   - `pacman -Syu`
+   - `pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-glfw`
+3. Run web.py
+4. Wait for it to compile..
+5. And ENJOY
 
 ---
 
 *Domain hosting: https://theboroer.github.io/localtunnel-www/*
-
-*No License (DO NOT DISTRIBUTE)*
