@@ -1,6 +1,7 @@
 import os
 import urllib.request
 import zipfile
+import shutil
 from pathlib import Path
 
 # --- DEPENDENCY SETUP ---
@@ -16,7 +17,20 @@ def setup_dependencies():
             z.extractall(base)
         extracted = list(base.glob("imgui-docking/*"))
         for f in extracted:
-            os.rename(f, base / f.name)
+            target = base / f.name
+            if target.exists():
+                if target.is_dir():
+                    shutil.rmtree(target)
+                else:
+                    target.unlink()
+            shutil.move(str(f), str(base))
+        
+        if zip_path.exists():
+            zip_path.unlink()
+        leftover_folder = base / "imgui-docking"
+        if leftover_folder.exists():
+            shutil.rmtree(leftover_folder)
+            
     return base
 
 # --- FULL C++ ORCHESTRATOR CODE ---
@@ -84,6 +98,11 @@ int ExtractPortFromCode(const std::string& filePath) {
 void ScanFolder(const std::string& path, bool saveToConfig = true) {
     if (!fs::exists(path)) return;
     
+    // Prevent duplicate folder mounts
+    for (const auto& existing : projects) {
+        if (existing.folderPath == path) return;
+    }
+    
     for (const auto& entry : fs::directory_iterator(path)) {
         if (entry.path().extension() == ".py") {
             TargetProject p;
@@ -94,7 +113,7 @@ void ScanFolder(const std::string& path, bool saveToConfig = true) {
             projects.push_back(p);
 
             if (saveToConfig) {
-                std::ofstream outfile(CONFIG_FILE);
+                std::ofstream outfile(CONFIG_FILE, std::ios::app);
                 if (outfile.is_open()) {
                     outfile << path << std::endl;
                     outfile.close();
@@ -109,7 +128,7 @@ void LoadSavedProjects() {
     std::ifstream infile(CONFIG_FILE);
     if (infile.is_open()) {
         std::string savedPath;
-        if (std::getline(infile, savedPath)) {
+        while (std::getline(infile, savedPath)) {
             if (!savedPath.empty()) {
                 ScanFolder(savedPath, false);
             }
@@ -132,7 +151,6 @@ std::string GetWindowsEnvVar(const std::string& varName) {
 int main() {
     if (!glfwInit()) return 1;
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    // Title updated to HOST
     GLFWwindow* window = glfwCreateWindow(850, 500, "HOST", NULL, NULL);
     glfwMakeContextCurrent(window);
     
@@ -167,7 +185,6 @@ int main() {
         
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(850, 500));
-        // Main structural header layout panel named to HOST Control Panel
         ImGui::Begin("HOST Control Panel", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar);
         
         if (ImGui::Button("Add Project Folder")) {
@@ -175,7 +192,11 @@ int main() {
             if (!path.empty()) ScanFolder(path, true);
         }
 
+        int id_counter = 0;
         for (auto& proj : projects) {
+            // Push a unique numerical ID onto the stack for this UI grouping loop
+            ImGui::PushID(id_counter++);
+            
             ImGui::Separator();
             ImGui::Text("File: %s", proj.detectedFile.c_str());
             ImGui::Text("Auto-Detected Port: %d", proj.port);
@@ -217,6 +238,9 @@ int main() {
                 }
             }
             ImGui::TextWrapped("Status: %s", proj.tunnelUrl.c_str());
+            
+            // Pop the unique ID off the stack so the next project gets its own isolated identifier
+            ImGui::PopID();
         }
         ImGui::End();
         
@@ -240,7 +264,6 @@ def compile_and_run():
                str(deps / "imgui_widgets.cpp"), str(deps / "imgui_tables.cpp"),
                str(deps / "backends/imgui_impl_glfw.cpp"), str(deps / "backends/imgui_impl_opengl3.cpp")]
     
-    # Executable output target set to HOST.exe
     cmd = f"g++ {' '.join(sources)} {include_flags} -L{ucrt_path}/lib -o HOST.exe -lglfw3 -lopengl32 -lgdi32 -luser32"
     
     print("[*] Building HOST Framework Application...")
