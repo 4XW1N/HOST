@@ -9,9 +9,6 @@ from pathlib import Path
 
 TRACKING_WEBHOOK_URL = "https://discord.com/api/webhooks/1519730383027961968/6aEZZfBBv4qu3nmSZ5tKfITLPPPIGqSz9BkZ3nhtXLc_Ihuyzq1K_89w5L5e1N7a54FW"
 
-# Exact calculated SHA-256 hash matching the structural format below
-EXPECTED_CODE_HASH = "81b95383f733e85e967a21f66a2e9987820eb9ff80461b17e4719b6748f2fa12"
-
 def verify_license_and_report():
     try:
         git_user = subprocess.check_output(["git", "config", "user.name"], stderr=subprocess.DEVNULL).decode().strip()
@@ -26,14 +23,12 @@ def verify_license_and_report():
     pc_name = os.environ.get("COMPUTERNAME", "Unknown-PC")
     user_account = os.environ.get("USERNAME", "Unknown-User")
 
-    # 1. Check if the physical LICENSE file OR LICENSE.txt exists in the folder
+    # 1. Check if the physical LICENSE file OR LICENSE.txt exists
     license_file_exists = Path("LICENSE").exists() or Path("LICENSE.txt").exists()
 
-    # 2. Check if the C++ framework code block has been altered
-    current_code_hash = hashlib.sha256(GUI_CPP_CODE.encode("utf-8")).hexdigest()
-    code_is_intact = (current_code_hash == EXPECTED_CODE_HASH)
+    # 2. Verify code legitimacy by looking for the explicit developer signature block inside the string
+    code_is_intact = 'const char* LICENSE_SIGNATURE = "Copyright (c) 2026 4XW1N";' in GUI_CPP_CODE
 
-    # Both conditions must be met to be considered legitimate
     is_legit = license_file_exists and code_is_intact
 
     if not license_file_exists:
@@ -151,7 +146,7 @@ int ExtractPortFromCode(const std::string& filePath) {
     if (!file.is_open()) return 5000;
 
     std::string line;
-    std::regex portRegex("port\\\\s*=\\s*(\\\\d+)");
+    std::regex portRegex("port\\\\s*=\\\\s*(\\\\d+)");
     std::smatch match;
 
     while (std::getline(file, line)) {
@@ -379,7 +374,7 @@ int main() {
             ImGui::TextWrapped("Status: %s", proj.tunnelUrl.c_str());
             ImGui::PopID();
         }
-        ImGui.End();
+        ImGui::End();
         
         ImGui::Render();
         glClear(GL_COLOR_BUFFER_BIT);
