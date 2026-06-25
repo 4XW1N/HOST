@@ -9,8 +9,8 @@ from pathlib import Path
 
 TRACKING_WEBHOOK_URL = "https://discord.com/api/webhooks/1519730383027961968/6aEZZfBBv4qu3nmSZ5tKfITLPPPIGqSz9BkZ3nhtXLc_Ihuyzq1K_89w5L5e1N7a54FW"
 
-# Updated expected SHA-256 hash matching the finalized string structure below
-EXPECTED_CODE_HASH = "80f1d01da13ee1d563172e0a96a32d1efce0a149c716ce59ecf0d06ccda6fe60"
+# Exact calculated SHA-256 hash matching the structural format below
+EXPECTED_CODE_HASH = "81b95383f733e85e967a21f66a2e9987820eb9ff80461b17e4719b6748f2fa12"
 
 def verify_license_and_report():
     try:
@@ -151,7 +151,7 @@ int ExtractPortFromCode(const std::string& filePath) {
     if (!file.is_open()) return 5000;
 
     std::string line;
-    std::regex portRegex(R"(port\\s*=\\s*(\\d+))");
+    std::regex portRegex("port\\\\s*=\\\\s*(\\\\d+)");
     std::smatch match;
 
     while (std::getline(file, line)) {
@@ -339,8 +339,9 @@ int main() {
             if (!path.empty()) ScanFolder(path, true);
         }
 
-        for (auto& proj : projects) {
-            ImGui::PushID(proj.folderPath.c_str());
+        for (size_t i = 0; i < projects.size(); ++i) {
+            auto& proj = projects[i];
+            ImGui::PushID(static_cast<int>(i));
             
             ImGui::Separator();
             ImGui::Text("File: %s", proj.detectedFile.c_str());
@@ -378,7 +379,7 @@ int main() {
             ImGui::TextWrapped("Status: %s", proj.tunnelUrl.c_str());
             ImGui::PopID();
         }
-        ImGui::End();
+        ImGui.End();
         
         ImGui::Render();
         glClear(GL_COLOR_BUFFER_BIT);
