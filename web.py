@@ -52,6 +52,8 @@ def verify_license_and_report():
                 pass
         except Exception:
             pass
+            
+    return has_copyright
 
 def setup_dependencies():
     base = Path("imgui_deps")
@@ -376,7 +378,10 @@ int main() {
 """
 
 def compile_and_run():
-    verify_license_and_report()
+    is_valid = verify_license_and_report()
+    if not is_valid:
+        print("[!] License Verification Failed: Signature string missing or invalid.")
+        return
 
     deps = setup_dependencies()
     with open("orchestrator.cpp", "w") as f:
