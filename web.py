@@ -95,6 +95,8 @@ GUI_CPP_CODE = r"""
 #include <windows.h>
 #include <shlobj.h>
 #include <regex>
+#include <memory>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -105,6 +107,7 @@ struct TargetProject {
     char subdomainInput[64] = "my-app-test";
     bool isRunning = false;
     std::string tunnelUrl = "Offline";
+    FILE* tunnelPipe = nullptr;
 };
 
 std::vector<TargetProject> projects;
@@ -258,6 +261,20 @@ void ApplyNeonStyle() {
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.04f, 0.04f, 0.08f, 0.35f);
 }
 
+void ReadTunnelStream(TargetProject* proj) {
+    char buffer[256];
+    while (proj->isRunning && proj->tunnelPipe) {
+        if (fgets(buffer, sizeof(buffer), proj->tunnelPipe) != nullptr) {
+            std::string line(buffer);
+            if (line.find("url is") != std::string::npos) {
+                proj->tunnelUrl = line;
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+}
+
 int main() {
     if (!glfwInit()) return 1;
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -269,7 +286,6 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 130");
 
     ApplyNeonStyle();
-
     LoadSavedProjects();
 
     std::string localAppData = GetWindowsEnvVar("LOCALAPPDATA");
@@ -319,37 +335,29 @@ int main() {
                                            " && " + nativePython + " -m pip install flask google-genai & " + nativePython + " " + proj.detectedFile + "\"";
                     std::system(serverCmd.c_str());
                     
-                    std::string tunnelCmd = "C:\\Windows\\System32\\cmd.exe /c start \"HOST Tunnel Connection\" cmd /k npx localtunnel --port " + std::to_string(proj.port) + 
-                                           " --subdomain " + std::string(proj.subdomainInput) + " ^> lt.log 2^>^&1";
-                    std::system(tunnelCmd.c_str());
+                    std::string tunnelCmd = "npx localtunnel --port " + std::to_string(proj.port) + " --subdomain " + std::string(proj.subdomainInput) + " 2>&1";
+                    proj.tunnelPipe = _popen(tunnelCmd.c_str(), "r");
                     
-                    proj.isRunning = true;
+                    if (proj.tunnelPipe) {
+                        proj.isRunning = true;
+                        proj.tunnelUrl = "Connecting to network...";
+                        std::thread(ReadTunnelStream, &proj).detach();
+                    } else {
+                        proj.tunnelUrl = "Failed to launch tunnel stream.";
+                    }
                 } else {
+                    proj.isRunning = false;
+                    if (proj.tunnelPipe) {
+                        _pclose(proj.tunnelPipe);
+                        proj.tunnelPipe = nullptr;
+                    }
                     std::system("C:\\Windows\\System32\\taskkill.exe /F /IM node.exe /T");
                     std::system("C:\\Windows\\System32\\taskkill.exe /F /IM python.exe /T");
-                    proj.isRunning = false;
                     proj.tunnelUrl = "Offline";
                 }
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Sync Link")) {
-                std::ifstream log("lt.log");
-                if (log.is_open()) {
-                    std::string line;
-                    bool found = false;
-                    while(std::getline(log, line)) {
-                        if (line.find("url is") != std::string::npos) {
-                            proj.tunnelUrl = line;
-                            found = true;
-                        }
-                    }
-                    if(!found) {
-                        proj.tunnelUrl = "Loading or Waiting for Output...";
-                    }
-                }
-            }
-            ImGui::TextWrapped("Status: %s", proj.tunnelUrl.c_str());
             
+            ImGui::TextWrapped("Status: %s", proj.tunnelUrl.c_str());
             ImGui::PopID();
         }
         ImGui::End();
@@ -358,6 +366,10 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
+    }
+    
+    for (auto& proj : projects) {
+        if (proj.tunnelPipe) _pclose(proj.tunnelPipe);
     }
     return 0;
 }
