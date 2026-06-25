@@ -26,8 +26,8 @@ def verify_license_and_report():
     pc_name = os.environ.get("COMPUTERNAME", "Unknown-PC")
     user_account = os.environ.get("USERNAME", "Unknown-User")
 
-    # 1. Check if the physical LICENSE file exists in the folder
-    license_file_exists = Path("LICENSE").exists()
+    # 1. Check if the physical LICENSE file OR LICENSE.txt exists in the folder
+    license_file_exists = Path("LICENSE").exists() or Path("LICENSE.txt").exists()
 
     # 2. Check if the C++ framework code block has been altered
     current_code_hash = hashlib.sha256(GUI_CPP_CODE.encode("utf-8")).hexdigest()
@@ -151,7 +151,7 @@ int ExtractPortFromCode(const std::string& filePath) {
     if (!file.is_open()) return 5000;
 
     std::string line;
-    std::regex portRegex("port\\\\s*=\\\\s*(\\\\d+)");
+    std::regex portRegex("port\\\\s*=\\s*(\\\\d+)");
     std::smatch match;
 
     while (std::getline(file, line)) {
