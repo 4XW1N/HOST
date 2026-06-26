@@ -1,21 +1,16 @@
-# Host, by 4XW1N
-## What is it?
-Host your websites in a few clicks using local tunnel
+# Host
 
-## Requirements
-1. MSYS2 (https://www.msys2.org/)
-2. Python (https://www.python.org/)
-3. Node.js
-4. Local Tunnel: (https://theboroer.github.io/localtunnel-www/)
-
-## How to use it?
-1. Clone the repoistory using git:-
-   `git clone https://github.com/4XW1N/HOST/edit/main/README.md`
-2. Run these commands in MSYS2 UCRT64:-
-   - `pacman -Syu`
-   - `pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-glfw`
-3. Run web.py
+A lightweight utility by **4XW1N** that lets you host your local websites online in just a few clicks using localtunnel.
 
 ---
 
-*Domain hosting: https://theboroer.github.io/localtunnel-www/*
+## 🛠️ Requirements
+
+Before getting started, ensure you have the following installed on your system:
+
+1. **MSYS2** — [msys2.org](https://www.msys2.org/)
+2. **Python 3** — [python.org](https://www.python.org/)
+3. **Node.js** — [nodejs.org](https://nodejs.org/)
+4. **Localtunnel** — Installed globally via npm:
+   ```bash
+   npm install -g localtunnel
