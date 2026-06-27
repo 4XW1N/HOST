@@ -1,0 +1,16 @@
+Copyright (c) 2026 4XW1N
+
+ALL RIGHTS RESERVED.
+
+1. GRANT OF LICENSE
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use and modify the Software strictly for personal, private, or internal use, provided that all original copyright notices are preserved.
+
+2. DISTRIBUTION RESTRICTIONS
+a) You MAY distribute, host, or share exact, unmodified copies of the original Software to third parties, provided this license file accompanies it.
+b) You SHALL NOT distribute, publish, sub-license, share, or otherwise make available to any third party any modified versions, alterations, adaptations, or derivative works of the Software. Any distribution of modified code is a strict violation of this license.
+
+3. OWNERSHIP
+This license provides limited rights to use, modify privately, and distribute unmodified copies of the Software. It does not transfer any ownership rights or intellectual property rights. The author retains all rights, title, and interest not expressly granted here.
+
+4. DISCLAIMER OF WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
